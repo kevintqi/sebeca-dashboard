@@ -1,0 +1,127 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../elements/checkout/checkout-summary.html">
+
+
+<dom-module id="pos-checkout">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+
+        padding: 10px 20px;
+      }
+
+      paper-button.green {
+        background-color: var(--paper-green-500);
+        color: white;
+      }
+
+      paper-button.green[active] {
+        background-color: var(--paper-red-500);
+      }
+
+      paper-button.red {
+        background-color: var(--paper-red-500);
+        color: white;
+      }
+
+      .canvas {
+        height: 500px;
+      }
+
+      .heading {
+        height: auto;
+      }
+    </style>
+
+    <iron-ajax id='orderTemplate' handle-as="json" last-response="{{posOrder}}"></iron-ajax>
+    <iron-ajax id='awsOrder' handle-as="json" on-response="_handleResponse" on-error="_handleError"></iron-ajax>
+
+    <div class="card heading">
+      <paper-button class="green" raised on-click="_handleSubmit">Submit</paper-button>
+      <paper-button raised on-click="_handleBackClick">Back</paper-button>
+      <paper-button class="red" raised on-click="_handleCancelClick">Cancel</paper-button>
+    </div>
+
+    <div class="card canvas">
+        <checkout-summary pos-order={{posOrder}}></checkout-summary>
+    </div>
+  </template>
+
+  <script>
+    const PAGE_CUSTOMER = 0;
+    const PAGE_POS = 1;
+    class PosCheckout extends Polymer.Element {
+      static get is() { return 'pos-checkout'; }
+      ready() {
+        super.ready();
+      }
+      static get properties() {
+        return {
+          posPage: { // Argument from pos-system
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+          },
+          posOrder: {  // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          }
+        };
+      }
+
+     _resetOrder() {
+       var ajax = this.$.orderTemplate;
+        ajax.url = "./src/pos/data/order-template.json";
+        ajax.generateRequest();
+     }
+
+     _handleSubmit() {
+       var ajax = this.$.awsOrder;
+       ajax.method = 'post';
+       ajax.body = JSON.stringify(this.posOrder);
+        ajax.url =
+          'https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/order';
+        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+     } 
+
+      _handleResponse(response) {
+        alert("Your request was successful, ", response.detail.__data.response);
+        this._resetOrder();
+        this.posPage = PAGE_CUSTOMER;
+      }
+
+      _handleError(e) {
+        const req = e.detail.request;
+        const err = e.detail.error;
+        console.log('error', err, req.status, req.statusText);
+        alert("Error", req, err);
+      }
+
+      _handleBackClick(e) {
+        console.log("pos-checkout", this.posOrder);
+        this.set('posPage', PAGE_POS);
+      }
+
+      _handleCancelClick(e) {
+        console.log("pos-checkout", this.posOrder);
+        this._resetOrder();
+        this.set('posPage', PAGE_CUSTOMER);
+      }
+
+
+      
+    }
+
+    window.customElements.define(PosCheckout.is, PosCheckout);
+  </script>
+</dom-module>

@@ -1,0 +1,168 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/gold-phone-input/gold-phone-input.html">
+
+
+<link rel="import" href="./checkout-cart.html">
+
+<dom-module id="checkout-summary">
+  <template>
+    <style>
+      :host {
+      }
+
+      #scrollingRegion {
+        overflow-y: auto;
+        background-color: #fff;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        scroll-behavior: smooth;
+        height: 500px;
+      }
+
+      .nav {
+        height: 50px;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+
+      .nav li {
+        display: inline-block;
+        list-style: none;
+      }
+
+      .nav a {
+        display: inline-block;
+        font-weight: 12px;
+        line-height: 64px;
+        text-decoration: none;
+        color: black;
+        font-weight: 300;
+        margin: 0 10px;
+      }
+
+      .nav a:hover {
+        color: #444;
+        border-bottom: 1px solid #999;
+      }
+
+      [threshold-triggered] {
+        background-color: gray;
+        position: fixed;
+        top: 75px;
+        left: 350px;
+        right: 0px;
+        z-index: 1;
+      }
+
+      header {
+        background-color: white;
+        height: 70px;
+      }
+
+      .label {
+        font-weight: bold;
+      }
+
+      .item {
+        width: 80%;
+        display: inline-block
+      }
+    </style>
+
+
+    <div class="overlay" id="scrollingRegion">
+      <header>
+        <app-box scroll-target="scrollingRegion" threshold="5">
+          <ul role="navigation" class="nav">
+            <li><a on-click="scrollIntoView" section-id="total">Total</a></li>
+            <li><a on-click="scrollIntoView" section-id="contact">Contact</a></li>
+            <li><a on-click="scrollIntoView" section-id="event">Event</a></li>
+            <li><a on-click="scrollIntoView" section-id="cart">Shopping Cart</a></li>
+          </ul>
+        </app-box>
+      </header>
+
+      <section id="total">
+        <article>
+          <hr />
+          <h2>Total</h2>
+          <iron-label class="label">Customer Name: </iron-label> {{posOrder.customerName}} <br>
+          <iron-label class="label">Customer Id: </iron-label> [[posOrder.customerId]] <br>
+          <iron-label class="label">Total Quantity </iron-label> [[posOrder.totalQuantity]] <br>
+          <iron-label class="label">Total Price </iron-label> {{posOrder.totalPrice}} <br>
+        </article>
+      </section>
+
+      <section id="contact">
+        <article>
+          <hr />
+          <h2>Contact Information</h2>
+          <paper-input class="item" id="cname" value=[[posOrder.event.contact.name]] 
+             label="Name" required auto-validate></paper-input>
+          <gold-phone-input class="item" id="cphone" 
+              label="Enter the phone number" auto-validate value=[[posOrder.event.contact.phoneNumber]]
+              error-message="Please enter the valid US number" required>
+          </gold-phone-input>
+          <paper-input class="item" id="cemail" type="email" value=[[posOrder.event.contact.email]]
+              label="Email" required auto-validate></paper-input>
+        </article>
+        </section>
+
+      <section id="event">
+        <article>
+          <hr />
+          <h2>Event</h2>
+          <paper-input class="item" id="ename" value=[[posOrder.event.name]] 
+             label="Name" required auto-validate></paper-input>
+          <paper-input class="item" id="estartData" value=[[posOrder.event.schedule.startDate]] 
+             label="Start Date" required auto-validate></paper-input>
+          <paper-input class="item" id="eenddate" value=[[posOrder.event.schedule.endDate]] 
+             label="End Date" required auto-validate></paper-input>
+          <h3>Location</h3>
+          <paper-input class="item" id="estreet" value=[[posOrder.event.location.street]] 
+             label="Street" required auto-validate></paper-input>
+          <paper-input class="item" id="ecity" value=[[posOrder.event.location.city]] 
+             label="City" required auto-validate></paper-input>
+          <paper-input class="item" id="estate" value=[[posOrder.event.location.state]] 
+             label="State" required auto-validate></paper-input>
+          <paper-input class="item" id="ezipCode" value=[[posOrder.event.location.zipCode]] 
+             label="Zip Code" required auto-validate></paper-input>
+        </article>
+      </section>
+
+      <section id="cart">
+        <article>
+          <hr />
+          <h2>Items</h2>
+          <checkout-cart pos-order={{posOrder}}></checkout-cart>
+        </article>
+      </section>
+
+    </div>
+  </template>
+  <script>
+    class CheckoutSummary extends Polymer.Element {
+      static get is() { return 'checkout-summary'; }
+      static get properties() {
+        return {
+          posOrder: {  // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          }
+        };
+      }
+      scrollIntoView(e) {
+        let sectionId = e.target.getAttribute('section-id');
+        this.$[sectionId].scrollIntoView();
+      }
+    }
+
+    window.customElements.define(CheckoutSummary.is, CheckoutSummary);
+  </script>
+</dom-module>

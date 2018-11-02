@@ -1,0 +1,28 @@
+{
+    "event": {
+      "name": "",
+      "schedule": {
+        "endDate": "",
+        "startDate": ""
+      },
+      "location": {
+        "zipCode": "",
+        "state": "",
+        "city": "",
+        "street": ""
+      },
+      "info": "",
+      "contact": {
+        "name": "",
+        "email": "",
+        "phoneNumber": ""
+      }
+    },
+    "totalPrice": 0.0,
+    "useLastJob": false,
+    "totalQuantity": 0,
+    "userPoolId": "UserPoolIdVal",
+    "items": [],
+    "customerId": "",
+    "customerName": ""
+  }

@@ -1,0 +1,86 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../shared-styles.html">
+
+<dom-module id="checkout-cart">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+  
+      paper-icon-button {
+        color: var(--paper-red-500);
+      }
+  
+      .card {
+        height: 500px;
+      }
+    </style>
+  
+    <div class="card">
+      </iron-pages>
+      <vaadin-grid id="grid" items="{{posOrder.items}}" style="height: 500px;">
+        <vaadin-grid-column width="60px" flex-grow="0">
+          <template class="header">#</template>
+          <template>[[index]]</template>
+        </vaadin-grid-column>
+  
+        <vaadin-grid-column>
+          <template class="header">Description</template>
+          <template>[[item.desc]]</template>
+        </vaadin-grid-column>
+  
+        <vaadin-grid-column>
+          <template class="header">Price</template>
+          <template>[[item.price]]</template>
+        </vaadin-grid-column>
+  
+        <vaadin-grid-column>
+          <template class="header">Quantity</template>
+          <template>[[item.quantity]]</template>
+        </vaadin-grid-column>
+  
+        <vaadin-grid-column>
+          <template class="header">Select</template>
+          <template>
+            <paper-icon-button id="[[index]]" on-click="_onDeleteClicked" icon="delete"></paper-icon-button>
+          </template>
+        </vaadin-grid-column>
+  
+      </vaadin-grid>
+  
+    </div>
+  
+  </template>
+
+  <script>
+    class CheckoutCart extends Polymer.Element {
+      static get is() { return 'checkout-cart'; }
+      static get properties() {
+        return {
+          posOrder: {  // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          }
+        };
+      }
+
+      _onDeleteClicked(e) {
+        let index = e.target.getAttribute('id');
+        let newPrice = this.posOrder.totalPrice - this.posOrder.items[index].price;
+        let newQuantity = this.posOrder.totalQuantity - this.posOrder.items[index].quantity;
+        this.set('posOrder.totalQuantity', newQuantity);
+        this.set('posOrder.totalPrice', newPrice);
+        this.splice("posOrder.items", index, 1);
+      }
+    }
+
+    window.customElements.define(CheckoutCart.is, CheckoutCart);
+  </script>
+</dom-module>

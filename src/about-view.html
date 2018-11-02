@@ -1,0 +1,30 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="about-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+
+        padding: 10px 20px;
+      }
+    </style>
+
+    About View <a href="[[rootPath]]">Head back to home.</a>
+  </template>
+
+  <script>
+    class AboutView extends Polymer.Element {
+      static get is() { return 'about-view'; }
+      static get properties() {
+        return {
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+        };
+      }
+    }
+
+    window.customElements.define(AboutView.is, AboutView);
+  </script>
+</dom-module>

@@ -1,0 +1,178 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/gold-phone-input/gold-phone-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pos-customer-create">
+  <template>
+    <style include="shared-styles iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+
+        background-color: white;
+
+        padding: 10px 20px;
+      }
+
+      .card_header {
+        height: 100px;
+      }
+
+      .card_body {
+        height: 400px;
+      }
+
+      .item {
+        width: 80%; 
+        display:inline-block
+      }
+      h3 {
+        color: #4285f4;
+      }
+
+      .flex-vertical {
+        @apply --layout-vertical;
+        margin: 20px;
+        padding: 20px;
+      }
+
+      paper-button {
+        margin: 10px auto;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      paper-button.green:hover {
+        background-color: var(--paper-green-400);
+      }
+
+      paper-button.green {
+        background-color: var(--paper-green-500);
+        color: white;
+      }
+
+      paper-button.green[active] {
+        background-color: var(--paper-red-500);
+      }
+
+      .center-footer {
+        margin: 10px auto;
+      }
+    </style>
+    
+    <div class="card card_header">
+      <h3>Create a new Customer</h3>
+      Please please enter the customer information and press "SUBMIT" button.
+    </div>
+    <div class="card card_body">
+    
+      <iron-form id="form" on-iron-form-response="_handleFormSubmit" on-iron-form-error="_handleError"
+        on-iron-form-presubmit="_presubmit" content-type="application/json">
+        
+        <form method="post" content-type="application/json" action="[[postUrl]]">
+          <div class="card flex-vertical">
+            <paper-input class="item" id="cname" label="Name" required></paper-input>
+            <gold-phone-input class="item" id="cphone" label="Enter the phone number" auto-validate 
+               error-message="Please enter the valid US number" required>
+            </gold-phone-input>
+            <paper-input class="item" id="cemail" type="email" label="Email" required auto-validate></paper-input>
+            <iron-label class="center-footer"> Ready to submit request </iron-label>
+            <paper-button class="green center-footer" id="submitButton" raised on-tap="_submit">Submit</paper-button>
+          </div>
+        </form>
+        </iron-form>
+        </div>
+    </template>
+    
+    <script>
+    const POS_PAGE = 1; // pos-pos.html
+    class PosCustomerCreate extends Polymer.Element {
+      static get is() { return 'pos-customer-create'; }
+      static get properties() {
+        return {
+          posPage: { // Argument from pos-system
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+          },
+          response: {
+            type: String,
+            value: "none"
+          },
+          errorMsg: {
+            type: String,
+            value: "No errors"
+          },
+          postUrl: {
+            type: String,
+            notify: true,
+            value: "none"
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        this.postUrl = this._getPostUrl();
+      }
+
+      _submit() {
+        let button = this.shadowRoot.querySelector('#submitButton');
+        button.textContent = 'Processing ...';
+        let localElement = this.shadowRoot.querySelector('#form');
+        localElement.submit();
+      }
+      
+      _handleFormSubmit(e) {
+        this.response = e.detail.response;
+        this.posPage = POS_PAGE;
+
+        let name = this.shadowRoot.querySelector('#cname');
+        this.set('posOrder.customerName', name.value);
+        this.set('posOrder.customerId', this.response.customerId);
+        this.set('posOrder.useLastJob', false);
+
+        console.log("posOrder-customer-create", this.posOrder);
+        const msg = JSON.stringify(this.response);
+        alert("Your request was submitted:" + msg);
+      }
+
+      _handleError(e) {
+        console.log("form errors: ", e.detail.error);
+        this.errorMsg = e.detail.error;
+      }
+
+      _presubmit() {
+        let name = this.shadowRoot.querySelector('#cname');
+        let phone = this.shadowRoot.querySelector('#cphone');
+        let email = this.shadowRoot.querySelector('#cemail');
+        let newBody = {
+          'name': name.value,
+          'phoneNumber': phone.value,
+          'email': email.value 
+        };
+
+        let form = this.shadowRoot.querySelector('#form');
+        form.request.body = newBody;
+        form.request.headers = {
+          'content-type': 'application/json',
+          'authorization': 'Bearer xxx',
+          'user-pool-id': 'UserPoolIdVal'
+        };
+      }
+      _getPostUrl() {
+        return "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer";
+      }
+    }
+
+    window.customElements.define(PosCustomerCreate.is, PosCustomerCreate);
+  </script>
+  </dom-module>

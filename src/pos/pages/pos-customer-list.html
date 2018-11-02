@@ -1,0 +1,179 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+  <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+  <link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="pos-customer-list">
+  <template>
+    <style include="shared-styles iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+
+        background-color: white;
+
+        padding: 10px 20px;
+      }
+
+      .flex-equal-justified {
+        @apply --layout-horizontal;
+        @apply --layout-justified;
+      }
+
+    </style>
+    
+    <iron-ajax id='awsCustomers' handle-as="json" on-response="_handleResponse" on-error="_handleError"></iron-ajax>
+    <iron-ajax id='awsOrders' handle-as="json"></iron-ajax>
+
+    
+    <div class="card container flex-equal-justified" style="height: 100px;">
+      <div>
+        <h3>Welcome to the POS System</h3>
+        Please select the customer
+      </div>
+      <div>
+        <paper-button raised on-click="_handleClickNewCustomer">Create New Customer</paper-button>
+      </div>
+    </div>
+    <div class="card" style="height: 500px;">
+      <vaadin-grid id="grid" items="{{customers}}" style="height: 500px;">
+        <vaadin-grid-column width="60px" flex-grow="0">
+          <template class="header">#</template>
+          <template>[[index]]</template>
+        </vaadin-grid-column>
+    
+        <vaadin-grid-column>
+          <template class="header">Customer</template>
+          <template>[[item.name]]</template>
+        </vaadin-grid-column>
+    
+        <vaadin-grid-column width="8em">
+          <template class="header">Use Last Order</template>
+          <template>
+    
+            <div style="white-space: normal">
+              <paper-checkbox id="c[[index]]">Load last order</paper-checkbox>
+            </div>
+          </template>
+        </vaadin-grid-column>
+    
+        <vaadin-grid-column>
+          <template class="header">Select</template>
+          <template>
+            <paper-button id="[[index]]" raised on-click="_handleClick">Select</paper-button>
+          </template>
+        </vaadin-grid-column>
+    
+      </vaadin-grid>
+    </div>
+  </template>
+
+  <script src="../../../bower_components/deepcopy/dist/deepcopy.min.js"></script>
+  <script>
+    const POS_CART_PAGE = 1;
+    const POS_CHK_OUT_PAGE = 2;
+    class PosCustomerList extends Polymer.Element {
+      static get is() { return 'pos-customer-list'; }
+      static get properties() {
+        return {
+          posPage: { // Argument from pos-system
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+          },
+          posOrder: { // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          },
+          customers: {
+            type: Object,
+            reflectToAttribute: true,
+            notify: true,
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        this._getCustomers();
+      }
+
+      _handleClickNewCustomer(e) {
+        this.posPage = 3;
+      }
+
+      _handleClick(e) {
+        let index = e.target.getAttribute('id');
+        let isChecked = this.shadowRoot.querySelector('#c' + index).checked;
+
+        let customerId = this.customers[index].customerId;
+        this.set('posOrder.customerId', customerId);
+        this.posOrder.useLastJob = isChecked;
+
+        let name = this.customers[index].name;
+        this.set("posOrder.customerName", name);
+
+        console.log("posOrder-customer-list", this.posOrder);
+
+        for (var i = 0; i < this.customers.length; ++i) {
+          let cb = this.shadowRoot.querySelector('#c' + i);
+          cb.checked = false;
+        }
+
+        if (this.posOrder.useLastJob) {
+          this._loadLastJob(this.customers[index].customerId).then(data => {
+            if(data.response.orders.length === 0) {
+              alert("Job for '" + this.posOrder.customerName + "' was not found");
+            } else {
+              this.posOrder = deepcopy(data.response.orders[0]);
+              let name = this.customers[index].name;
+              this.set("posOrder.customerName", name);
+              this.posPage = POS_CART_PAGE;
+            }
+          }).catch(error => {
+            console.log("_loadLastJob", );
+          });
+        }
+
+        this.posPage = POS_CART_PAGE;
+      }
+
+      _loadLastJob(customerId) {
+        var ajax = this.$.awsOrders;
+        ajax.url = 'https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/order/' +
+          customerId;
+        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+        return ajax.generateRequest().completes;
+      }
+
+      _getCustomers() {
+        var ajax = this.$.awsCustomers;
+        ajax.url =
+          'https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer';
+        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+      }
+
+      _handleResponse(response) {
+        this.set('customers', response.detail.__data.response.customers);
+      }
+
+      _handleError(e) {
+        const req = e.detail.request;
+        const err = e.detail.error;
+        console.log('error', err, req.status, req.statusText);
+      }
+    }
+
+    window.customElements.define(PosCustomerList.is, PosCustomerList);
+  </script>
+  </dom-module>

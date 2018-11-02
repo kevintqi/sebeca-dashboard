@@ -1,0 +1,184 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="cart-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 300px;
+
+        padding-bottom: 10px;
+      }
+
+      iron-list {
+        background-color: #ddd;
+
+        --iron-list-items-container: {
+          margin: auto;
+        }
+      }
+
+      iron-image {
+        width: 50px;
+        height: 50px;
+      }
+
+      .item {
+        border-bottom: 5px solid gray;
+      }
+
+      paper-icon-button {
+        color: #DC143C;
+      }
+
+      paper-card {
+        background-color: #DCDCDC;
+      }
+
+      .rate-image {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 25%;
+        background-size: cover;
+      }
+
+      .rate-header {
+        @apply --paper-font-headline;
+      }
+
+      .rate-name {
+        color: var(--paper-grey-600);
+        margin: 10px 0;
+      }
+
+      paper-icon-button.rate-icon {
+        --iron-icon-fill-color: white;
+        --iron-icon-stroke-color: var(--paper-grey-600);
+      }
+    </style>
+
+    <div hidden={{!hiddenCart}}>
+      <div class="card">
+        <br>
+        <h3>Cart is empty...</h3>
+      </div>
+    </div>
+
+    <div hidden={{hiddenCart}}>
+      <div class="card">
+        <iron-list id="list" style="height: 300px;" items="{{posOrder.items}}">
+          <template>
+            <paper-card class="rate item">
+              <div class="card-content">
+                <div>Quantity: <strong>[[item.quantity]]</strong>,
+                  Price: <strong>[[item.price]]</strong> -- Desc: [[item.desc]]
+                </div>
+              </div>
+              <div class="card-actions">
+                <paper-icon-button on-click="_onDeleteClicked" icon="delete"></paper-icon-button>
+              </div>
+              <div class="rate-image" style="background: url('[[item.image]]'); background-size: cover;">
+              </div>
+            </paper-card>
+          </template>
+        </iron-list>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class CartView extends Polymer.Element {
+      static get is() { return 'cart-view'; }
+
+      ready() {
+        super.ready();
+        window.addEventListener('item-added', e => {
+          this._handleItemAdded(e.detail);
+        });
+      }
+
+      static get properties() {
+        return {
+          posOrder: {  // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          },
+          hiddenCart: {
+            type: Boolean,
+            notify: true,
+            value: true 
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+            '_cartChanged(posOrder.items)'
+        ]
+      }
+
+      _cartChanged(items) {
+        if(items) {
+          if(items.length > 0) {
+             this.hiddenCart = false;
+             return;
+          }
+        }
+        this.hiddenCart = true;
+        return;
+      }
+
+      _handleItemAdded(item) {
+        this.hiddenCart = false;
+        let entry = {
+            "itemId": item.item.itemId,
+            "category": item.item.category,
+            "name": item.item.name, 
+            "image": item.item.image,
+            "price": item.item.price, 
+            "quantity": item.selectedQuantity, 
+            "desc": item.item.desc 
+        };
+        if (this.posOrder.items) {
+          this.push('posOrder.items', entry);
+        } else {
+          this.posOrder.items = [];
+          this.posOrder.items.push(entry);
+        }
+        let items = this.posOrder.items;
+        this.set('posOrder.items', []);
+        this.set('posOrder.items', items);
+
+
+        window.dispatchEvent(new CustomEvent('item-updated', {
+            detail: this.posOrder.items 
+        }));
+      }
+
+      _onDeleteClicked(event){
+        this.splice("posOrder.items", event.model.index, 1);
+
+        if (this.posOrder.items.length === 0) {
+           this.hiddenCart = true;
+        }
+
+        window.dispatchEvent(new CustomEvent('item-updated', {
+            detail: this.posOrder.items
+        }));
+      }
+    }
+
+    window.customElements.define(CartView.is, CartView);
+  </script>
+</dom-module>

@@ -1,0 +1,127 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="summary-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        height: 300px;
+  
+        padding-bottom: 10px;
+      }
+  
+      paper-button {
+        font-family: 'Roboto', 'Noto', sans-serif;
+        font-weight: normal;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+  
+      paper-button.green:hover {
+        background-color: var(--paper-green-400);
+      }
+  
+      paper-button.green {
+        background-color: var(--paper-green-500);
+        color: white;
+      }
+  
+      paper-button.green[active] {
+        background-color: var(--paper-red-500);
+      }
+  
+      paper-button.disabled {
+        color: black;
+        background-color: #969696;
+      }
+    </style>
+  
+    <div class="card">
+      <div class="title">Summary</div>
+      <div>List of items in cart<div>
+          Number of items in chart: [[posOrder.totalQuantity]]
+          <p><strong>Total = $[[posOrder.totalPrice]] </strong></p>
+          <paper-button rasised class="green" on-click="_handleClick">
+            Checkout
+          </paper-button>
+        </div>
+  </template>
+
+  <script>
+    class SummaryView extends Polymer.Element {
+      static get is() { return 'summary-view'; }
+
+      ready() {
+        super.ready();
+        window.addEventListener('item-updated', e => {
+          this._handleItemUpdated(e.detail);
+        });
+      }
+
+      static get properties() {
+        return {
+          posPage: { // Argument from pos-system
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+          },
+          posOrder: { // Argument from pos-system
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+            '_totalChanged(posOrder.totalPrice, posOrder.totalQuantity)'
+        ]
+      }
+
+      _totalChanged(totalPrice, totalQuantity) {
+        if (totalPrice !== undefined) {
+          console.log("_totalChanged", totalPrice, totalQuantity);
+          this.set('posOrder.totalPrice', totalPrice);
+          this.set('posOrder.totalQuantity', totalQuantity);
+        }
+      }
+
+      _handleClick(e) {
+        this.posPage = 2;
+        let items = this.posOrder.items;
+        this.set('posOrder.items', []);
+        this.set('posOrder.items', items);
+        console.log("posOrder-summary-view", this.posOrder);
+      }
+
+      _handleItemUpdated(items) {
+        this.set('posOrder.items', items);
+        this._calculateTotals();
+      }
+
+      _calculateTotals() {
+        if (this.posOrder.items) {
+          let totalPrice = 0;
+          let totalQuantity = 0;
+          this.posOrder.items.forEach(function (item) {
+            totalPrice += item.price * item.quantity;
+            totalPrice = this._round(totalPrice, 2);
+            totalQuantity += item.quantity;
+          }, this);
+
+          this.set('posOrder.totalPrice', totalPrice);
+          this.set('posOrder.totalQuantity', totalQuantity);
+        }
+      }
+
+      _round(value, decimals) {
+        return Number(Math.round(value+'e' + decimals) + 'e-' + decimals);
+      }
+    }
+
+    window.customElements.define(SummaryView.is, SummaryView);
+  </script>
+</dom-module>

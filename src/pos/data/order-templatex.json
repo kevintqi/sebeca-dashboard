@@ -1,0 +1,38 @@
+{
+    "event": {
+      "name": "Long Beach Jazz Festival",
+      "schedule": {
+        "endDate": "2018-10-30",
+        "startDate": "2018-10-01"
+      },
+      "location": {
+        "zipCode": "90000",
+        "state": "CA",
+        "city": "Long Beach",
+        "street": "34 Street"
+      },
+      "info": "---",
+      "contact": {
+        "name": "Mike G",
+        "email": "mike@g.com",
+        "phoneNumber": "3103333333"
+      }
+    },
+    "totalPrice": 1300.33,
+    "useLastJob": false,
+    "totalQuantity": 120,
+    "userPoolId": "UserPoolIdVal",
+    "items": [
+      {
+        "itemId": "---",
+        "image": "---",
+        "quantity": 100,
+        "price": 1000.0,
+        "name": "---",
+        "category": "---",
+        "desc": "---"
+      }
+    ],
+    "customerId": "cid371",
+    "customerName": "Ruben Von Lech"
+  }

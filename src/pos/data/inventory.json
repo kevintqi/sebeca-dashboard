@@ -1,0 +1,222 @@
+{
+    "tables": [
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "Gray FLD",
+            "image": "./src/pos/data/images/table2.jpeg",
+            "price": 4.0,
+            "quantity": 10,
+            "desc": "gray top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "Glass FLD",
+            "image": "./src/pos/data/images/table3.jpeg",
+            "price": 3.3,
+            "quantity": 33,
+            "desc": "glass top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "Brown WD",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 7.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        },
+        {
+            "itemId": "uuid",
+            "category": "tables",
+            "name": "imperial",
+            "image": "./src/pos/data/images/table1.jpeg",
+            "price": 5.0,
+            "quantity": 23,
+            "desc": "brown top, folding legs"
+        }
+    ],
+    "chairs": [
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "red std",
+            "image": "./src/pos/data/images/chair2.jpeg",
+            "price": 1.0,
+            "quantity": 55,
+            "desc": "plastic, red"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "black reg",
+            "image": "./src/pos/data/images/chair3.jpeg",
+            "price": 3.0,
+            "quantity": 79,
+            "desc": "metal, back"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        },
+        {
+            "itemId": "uuid",
+            "category": "chairs",
+            "name": "imperial",
+            "image": "./src/pos/data/images/chair1.jpeg",
+            "price": 2.0,
+            "quantity": 123,
+            "desc": "wood, white padding"
+        }
+    ]
+}

@@ -1,0 +1,131 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="preview-view">
+  <template>
+    <style include="shared-styles iron-flex iron-flex-alignment">
+      :host {
+          display: block;
+          height: 300px;
+  
+          padding-bottom: 10px;
+        }
+  
+        iron-image {
+          width: 100px;
+          height: 100px;
+          background-color: blue;
+        }
+  
+        paper-button {
+          font-family: 'Roboto', 'Noto', sans-serif;
+          font-weight: normal;
+          font-size: 14px;
+          -webkit-font-smoothing: antialiased;
+        }
+  
+        paper-button.green:hover {
+          background-color: var(--paper-green-400);
+        }
+  
+        paper-button.green {
+          background-color: var(--paper-green-500);
+          color: white;
+        }
+  
+        paper-button.green[active] {
+          background-color: var(--paper-red-500);
+        }
+  
+        paper-button.disabled {
+          color: black;
+          background-color: #969696;
+        }
+  
+      .flex {
+        @apply --layout-horizontal;
+      }
+  
+      </style>
+  
+    <div class="card">
+      <div class="title">
+        Preview
+      </div>
+  
+      <div hidden={{!hiddenPreview}}>
+        <br>
+        <h3>Select an Item</h3>
+      </div>
+  
+      <div hidden={{hiddenPreview}}>
+        <div>
+          <iron-image sizing="cover" preload src=[[item.image]]></iron-image>
+        </div>
+        Description: [[item.desc]] <br>
+        Quantity: <strong>[[item.quantity]]</strong>, $[[item.price]] per day
+  
+        <div class="container flex">
+          <iron-form id="form">
+            <form>
+              <paper-input id="quantity" label="Quantity" type="number" required pattern="[0-9]">
+              </paper-input>
+        </div>
+        <paper-button class="green" on-click="handleClick">Add to cart</paper-button>
+        </form>
+        </iron-form>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class PreviewView extends Polymer.Element {
+      static get is() { return 'preview-view'; }
+      ready() {
+        super.ready();
+        window.addEventListener('item-selected', e => {
+          this._handleItemSelected(e.detail);
+        });
+      }
+      _handleItemSelected(item) {
+        this.item = item;
+        this.hiddenPreview = false;
+      }
+
+      static get properties() {
+        return {
+          item: {
+            type: Object,
+            notify: true,
+            value: function () { return {}; }
+          },
+          hiddenPreview: {
+            type: Boolean,
+            notify: true,
+            value: true
+          },
+        }
+      }
+
+      handleClick() {
+        if (this.$.form.validate()) {
+          let quantity = parseFloat(this.$.quantity.value);
+          window.dispatchEvent(new CustomEvent('item-added', {
+            detail: { 'item': this.item, 
+                      'selectedQuantity': quantity }
+          }));
+        }
+      }
+    }
+
+    window.customElements.define(PreviewView.is, PreviewView);
+  </script>
+</dom-module>

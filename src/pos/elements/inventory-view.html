@@ -1,0 +1,98 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="inventory-view">
+  <template>
+    <style include="shared-styles iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        height: 300px;
+
+        padding-bottom: 10px;
+      }
+
+      iron-image {
+        width: 70px;
+        height: 70px;
+        background-color: blue;
+      }
+
+      paper-button {
+        font-family: 'Roboto', 'Noto', sans-serif;
+        font-weight: normal;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      paper-button.blue:hover {
+        background-color: grey;
+      }
+
+      paper-button.blue {
+        background-color: var(--paper-gray-500);
+        color: black;
+      }
+
+      paper-button.blue[active] {
+        background-color: var(--paper-blue-500);
+      }
+
+      paper-button.disabled {
+        color: black;
+        background-color: #969696;
+      }
+
+      iron-list {
+        margin-top: 0px;
+        padding-bottom: 0px;
+        width: 100%;
+      }
+    </style>
+
+    <div class="card horizontal">
+      <iron-list items="[[inventory]]" as="item" grid style="height: 300px;">
+        <template>
+          <paper-button class="blue" on-click="handleClick">
+            <div>
+              <iron-image sizing="cover" preload src="[[item.image]]"></iron-image>
+              <div>
+                [[item.name]]
+              </div>
+            </div>
+          </paper-button>
+        </template>
+      </iron-list>
+
+    </div>
+  </template>
+
+  <script>
+    class InventoryView extends Polymer.Element {
+      static get is() { return 'inventory-view'; }
+
+      static get properties() {
+        return {
+          inventory: {
+            notify: true,
+            type: Array
+          }
+        };
+      }
+
+      handleClick(button) {
+         let item = button.model.item;
+         window.dispatchEvent(new CustomEvent('item-selected', {
+           detail: item
+         }));
+      }
+    }
+
+    window.customElements.define(InventoryView.is, InventoryView);
+  </script>
+</dom-module>

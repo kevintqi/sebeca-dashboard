@@ -1,0 +1,55 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./pos/pages/pos-checkout.html">
+<link rel="import" href="./pos/pages/pos-customer-create.html">
+<link rel="import" href="./pos/pages/pos-customer-list.html">
+<link rel="import" href="./pos/pages/pos-pos.html">
+
+<dom-module id="pos-system">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background-color: white;
+      }
+    </style>
+    
+    <iron-ajax auto="" url="./src/pos/data/order-template.json" 
+      handle-as="json" last-response="{{posOrder}}"></iron-ajax>
+
+    <iron-pages selected="{{posPage}}" fallback-selection="0" role="main">
+      <pos-customer-list name="customer" pos-page={{posPage}}
+        pos-order={{posOrder}}></pos-customer-list>
+      <pos-pos name="pos" pos-page={{posPage}}
+        pos-order={{posOrder}}></pos-pos>
+      <pos-checkout name="checkout" pos-page={{posPage}}
+        pos-order={{posOrder}}></pos-checkout>
+      <pos-customer-create name="customer-create" pos-page={{posPage}}
+        pos-order={{posOrder}}></pos-customer-create>
+      <my-view404 name="view404"></my-view404>
+    </iron-pages>
+  </template>
+
+  <script>
+    class PosSystem extends Polymer.Element {
+      static get is() { return 'pos-system'; }
+      static get properties() {
+        return {
+          posPage: {
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+            value: "0"
+          },
+          posOrder: { 
+            type: Object,
+            reflectToAttribute: true,
+            notify: true,
+            value: {} 
+          }
+        };
+      }
+    }
+    window.customElements.define(PosSystem.is, PosSystem);
+  </script>
+</dom-module>
