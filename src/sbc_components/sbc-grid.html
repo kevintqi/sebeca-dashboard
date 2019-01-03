@@ -1,0 +1,303 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
+
+
+<link rel="import" href="./elements/row-detail-form.html">
+
+<dom-module id="sbc-grid">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 10px 20px;
+      }
+
+      .details {
+        padding: 10px;
+        margin: 10px;
+        justify-content: space-around;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14);
+        font-size: 20px;
+        width: 90%;
+      }
+
+      .add-dialog-size {
+        width: 500px;
+        height: 600px;
+        overflow: auto;
+      }
+
+      .add-dialog {
+        height: 400px;
+        margin: 0 auto;
+      }
+    </style>
+
+    <iron-ajax id='cloudOperation' handle-as="json" on-response="_handleCloudOperation" 
+               on-error="_handleCloudError"></iron-ajax>
+    <iron-ajax id='cloudItems' handle-as="json" on-response="_handleCloudItems" on-error="_handleCloudError"></iron-ajax>
+    <iron-ajax id='configInfo' url="{{configfilegv}}" on-response="_handleConfig" last-response="{{config_}}"></iron-ajax>
+
+    <h1>[[config_.pageTitle]]</h1>
+
+    <button id="remove-row" class="btn-default btn-small" disabled on-click="_removeRow">Remove Rows</button>
+    <button id="add-row" class="btn-default btn-small" on-click="_addRow">Add Rows</button>
+
+    <vaadin-grid id="material" active-item="{{activeItem}}"
+        on-active-item-changed="_onActiveItemChanged"
+        aria-label="multi-component" items="[[cloudItems_]]" size="200">
+
+      <template class="row-details">
+        <div class="details">
+          <row-detail-form rows={{config_.columns.names}} detail_data="{{item}}"></row-detail-form>
+        </div>
+      </template>
+
+      <vaadin-grid-column width="50px" flex-grow="0">
+        <template class="header">#</template>
+        <template>[[index]]</template>
+      </vaadin-grid-column>
+
+      <vaadin-grid-column width="33px" flex="0">
+        <template class="header"></template>
+        <template>
+          <paper-checkbox checked="{{detailsOpened}}" on-change="_checkChange"></paper-checkbox>
+        </template>
+      </vaadin-grid-column>
+
+      <template is="dom-repeat" items="{{config_.columns.names}}" as="column" >
+          <vaadin-grid-column>
+              <template class="header">[[column.name]]</template>
+              <template class="cell">[[_getItem(item, column.name)]]</template>
+            </vaadin-grid-column>
+			</template>
+
+    </vaadin-grid>
+
+     <paper-dialog id="remove-dialog" >
+        <h2 class="d-header">Remove Items</h2>
+        <p>Are you sure you want to remove the selected items?</p>
+        <ul id="selected-items"></ul>
+        <div class="buttons">
+          <paper-button class="btn-default btn-small" dialog-dismiss>Decline</paper-button>
+          <paper-button class="btn-primary btn-small" dialog-confirm autofocus>Accept</paper-button>
+        </div>
+    </paper-dialog>
+
+    <paper-dialog id="add-dialog" class="add-dialog-size">
+      <h2 class="d-header">[[config_.addDialogTitle]]</h2>
+      <paper-dialog-scrollable>
+        <div class="add-dialog">
+          <row-detail-form upload={{config_.uploadFile}} rows={{config_.columns.names}} ></row-detail-form>
+        </div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button class="btn-default btn-small" dialog-dismiss>Cancel</paper-button>
+        <paper-button class="btn-primary btn-small" dialog-confirm autofocus>Add</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    class SbcGrid extends Polymer.Element {
+      static get is() {
+        return 'sbc-grid';
+      }
+      static get properties() {
+        return {
+          config_: {
+            type: Object,
+            notify: true,
+            value: {} 
+          },
+          activeItem: {
+            type: Object,
+            reflectToAttribute: true,
+            notify: true
+          },
+          cloudItems_: {
+            type: Object,
+            reflectToAttribute: true,
+            notify: true,
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        this._getConfig();
+
+        var that = this;
+        var removeDialog = this.$['remove-dialog'];
+        var addDialog = this.$['add-dialog'];
+        var table = this.$.material;
+
+        var button = this.$['remove-row'];
+        this.addEventListener('dropdownHideColEvent', this._handleHideColEvent);
+        removeDialog.addEventListener('iron-overlay-closed', function(e) {
+          let confirmed = e.detail.confirmed;
+          if (confirmed) {
+            let count = table.detailsOpenedItems.length;
+            console.info("removeDialog, items to be remove: " , count);
+
+            var items = table.detailsOpenedItems;
+            for (var i = 0; i < items.length; i++) {
+              that._removeIncloud(items[i]);
+            }
+            table.detailsOpenedItems = [];
+            table.clearCache();
+            button.disabled = true;
+          }
+          table.clearCache();
+        });
+
+        addDialog.addEventListener('iron-overlay-closed', function(e) {
+          let confirmed = e.detail.confirmed;
+          let component = this.querySelector('row-detail-form');
+          if (confirmed) {
+            console.info("addDialog: table.items:",table.items);
+            var data = component.getAllData(table);
+            that._normalizeType(data);
+            console.info("addDialog data:", data);
+            that._saveInCloud(data);
+          }
+          component.resetFields();
+        });
+      }
+
+      _onActiveItemChanged(e) {
+        if (e.detail.value) {
+          this.$.material.detailsOpenedItems = [e.detail.value];
+        }
+      }
+
+      _normalizeType(data) {
+        if(data) {
+          for(var attribute in data){
+             let result = this.config_.columns.names
+               .filter(item => item.name == attribute);
+             if ((result) && (result.length > 0)) {
+                if (result[0].type === "number") {
+                   data[attribute] = parseInt(data[attribute]);
+                }
+             }
+          }
+        }
+      }
+
+      _getItem(data, item) {
+				if ((data) && (item)) {
+				  return data[item];
+				}
+				return "";
+			}
+
+      _getCloudItems() {
+        var ajax = this.$.cloudItems;
+        ajax.url = this.config_.cloud.urlGet;
+        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+      }
+
+      _handleCloudItems(response) {
+        let respObj = this.config_.cloud.responseObject;
+        if (respObj) {
+           this.set('cloudItems_', response.detail.__data.response[respObj]);
+        } else {
+           this.set('cloudItems_', response.detail.__data.response);
+        }
+        console.log('cloudItems_', this.cloudItems_);
+      }
+
+      _handleCloudOperation(response) {
+        this._getCloudItems();
+        alert("Your request was successful, ", response.detail.__data.response);
+      }
+
+      _handleCloudError(e) {
+        const req = e.detail.request;
+        const err = e.detail.error;
+        console.log('error', err, req.status, req.statusText);
+        alert("Error", req, err);
+      }
+
+      _saveInCloud(data) {
+        var ajax = this.$.cloudOperation;
+        ajax.method = 'post';
+        ajax.body = JSON.stringify(data);
+        ajax.url = this.config_.cloud.urlPost;
+        ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+      }
+
+      _getConfig() {
+        var ajax = this.$.configInfo;
+        ajax.generateRequest();
+      }
+
+      _removeIncloud(item) {
+        var ajax = this.$.cloudOperation;
+        ajax.method = 'delete';
+        let delAttr = this.config_.cloud.deleteAttribute;
+        let body = {};
+        body[delAttr] = item[delAttr];
+        ajax.body = JSON.stringify(body);
+        ajax.url = this.config_.cloud.urlDel;
+        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+      }
+
+      _addRow() {
+        var addDialog = this.$['add-dialog'];
+        addDialog.open();
+      }
+
+      _removeRow() {
+        var table = this.$.material;
+        var dialog = this.$['remove-dialog'];
+        var items = table.detailsOpenedItems;
+        var chls = "";
+        var ul = this.$["selected-items"];
+        while( ul.firstChild ){
+          ul.removeChild( ul.firstChild );
+        }
+        for (var i = 0; i < items.length; i++) {
+          var li = document.createElement("li");
+          // TODO lechDev: name variable should be in config file,
+          // such as primaryName
+          li.appendChild(document.createTextNode(items[i].name));
+          ul.appendChild(li);
+        }
+        dialog.open();
+      }
+
+      _checkChange(e) {
+        var table = this.$.material;
+        var button = this.$['remove-row'];
+        console.info("_checkChange e.target.checked", e.target.checked);
+        console.info("_checkChange length", table.detailsOpenedItems.length);
+        var len = table.detailsOpenedItems.length;
+        var checked = e.target.checked;
+        button.disabled = checked ? len > 0 ? false : true : len == 0 ? true : false;
+      }
+
+      _handleConfig(e, data) {
+        console.log("_handleConfig data:", data.xhr.response);
+        this._getCloudItems();
+      }
+    }
+
+    window.customElements.define(SbcGrid.is, SbcGrid);
+  </script>
+</dom-module>

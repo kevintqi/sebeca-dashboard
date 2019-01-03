@@ -1,0 +1,22 @@
+{
+  "pageTitle": "Inventory Page",
+  "columns": {
+    "names": [
+             {"name": "name", "type": "string"},
+             {"name": "quantity", "type": "number"},
+             {"name": "price", "type": "number"},
+             {"name": "image", "type": "string"},
+             {"name": "category", "type": "string"},
+             {"name": "desc", "type": "string"}
+    ]
+  },
+  "addDialogTitle": "Add Inventory",
+  "uploadFile": true,
+  "cloud": {
+     "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory/Chair",
+     "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
+     "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory/Chair",
+     "responseObject": "items",
+     "deleteAttribute": "itemId" 
+  }
+}

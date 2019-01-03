@@ -1,0 +1,89 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+
+
+<link rel="import" href="./sbc-upload.html">
+
+<dom-module id="row-detail-form">
+	<template>
+		<style is="custom-style" include="dfw-styles dfw-icon-styles">
+			:host {
+				display: block;
+				margin: 0 10px 20px 10px;
+				font-size: 12px;
+			}
+			paper-input {
+				/* width: 350px; */
+				width: 100%;
+			}
+		</style>
+		
+		<iron-form id="allData">
+			<form is="iron-form" class="results-data">
+
+				<template is="dom-repeat" items="{{rows}}">
+					<paper-input label=[[item.name]] name=[[item.name]] value="{{_getItem(detail_data, item.name)}}"></paper-input>
+				</template>
+
+  			<dom-if if="[[upload]]">
+					<template>
+   					<sbc-upload id="uploadFile"></sbc-upload>
+					</template>
+				</dom-if>
+
+			</form>
+		</iron-form>
+	</template>
+
+	<script>
+		class RowDetailForm extends Polymer.Element {
+			static get is() {
+				return 'row-detail-form';
+			}
+			static get properties() {
+				return {
+					// This shouldn't be neccessary, but the Analyzer isn't picking up
+					// Polymer.Element#rootPath
+					rootPath: String,
+				};
+			}
+
+			_getItem(data, item) {
+				if ((data) && (item)) {
+				  return data[item];
+				}
+				return "";
+			}
+
+			getAllData() {
+        var form = this.$.allData;
+        var inputs = form.querySelectorAll('paper-input');
+				var data = this._packageData(inputs);
+        return data;
+      }
+
+			_packageData(inputs) {
+				let data = {};
+				for (var i = 0, len = inputs.length; i < len; i++) {
+					let input = inputs[i]; 
+          data[input.name] = input.value;
+				}
+        return data;
+			}
+
+			resetFields() {
+        let form = this.$.allData;
+				let inputs = form.querySelectorAll('paper-input');
+				for (let i = 0; i < inputs.length; i++) {
+          inputs[i].value = "";
+        }
+        // let upload = this.shadowRoot.querySelector("#uploadFile");
+				// upload.set('files', []);
+				// upload.files = [];
+			}
+		}
+
+		window.customElements.define(RowDetailForm.is, RowDetailForm);
+	</script>
+</dom-module>

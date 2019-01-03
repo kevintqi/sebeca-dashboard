@@ -1,0 +1,19 @@
+{
+  "pageTitle": "Customers Page",
+  "columns": {
+    "names": [
+             {"name": "name", "type": "string"},
+             {"name": "phoneNumber", "type": "string"},
+             {"name": "email", "type": "string"}
+    ]
+  },
+  "addDialogTitle": "Add Customer",
+  "uploadFile": true,
+  "cloud": {
+     "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
+     "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
+     "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
+     "responseObject": "customers",
+      "deleteAttribute": "email" 
+  }
+}

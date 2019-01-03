@@ -1,0 +1,66 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/vaadin-upload/vaadin-upload.html">
+
+<dom-module id="sbc-upload">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <vaadin-upload id="manualUpload"
+                   no-auto
+                   target="https://example.com/images/upload"
+                   accept="image/*"
+                   maxFiles="1">
+    </vaadin-upload>
+
+    <br>
+    <button id="uploadButton">Start Upload(s)</button>
+
+  </template>
+  <script>
+    class SbcUpload extends Polymer.Element {
+      static get is() {
+        return 'sbc-upload';
+      }
+
+      static get properties() {
+        return {
+          configFile_: {
+            type: String,
+            value: "./src/customers/customers-config.json"
+          },
+        };
+      }
+
+      ready() {
+        super.ready();
+
+        document.addEventListener('WebComponentsReady', function () {
+          var upload = document.querySelector('vaadin-upload#manualUpload');
+          var uploadButton = document.getElementById('uploadButton');
+
+          uploadButton.addEventListener('click', function () {
+            upload.uploadFiles();
+          });
+
+          // Change upload button text
+          upload.set('i18n.addFiles', {
+            one: 'Add File',
+            many: 'Add Files'
+          });
+        });
+
+      }
+    }
+
+    window.customElements.define(SbcUpload.is, SbcUpload);
+  </script>
+</dom-module>
+
+
+<!-- https://www.webcomponents.org/element/vaadin/vaadin-upload/demo/demo/index.html
+  https://cdn.vaadin.com/vaadin-upload/2.0.0-alpha1/demo/advanced.html
+https://www.webcomponents.org/element/vaadin/vaadin-upload/elements/vaadin-upload -->
