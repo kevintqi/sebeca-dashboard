@@ -1,0 +1,21 @@
+{
+  "pageTitle": "Category Page",
+  "columns": {
+    "names": [
+             {"name": "category", "type": "string"},
+             {"name": "categoryId", "type": "string"}
+    ]
+  },
+  "addDialogTitle": "Add Category",
+  "removeDialog": {
+    "displayAttribute": "category"
+  },
+  "uploadFile": false,
+  "cloud": {
+     "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/category",
+     "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/category",
+     "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/category",
+     "responseObject": "items",
+      "deleteAttributes": ["categoryId"]
+  }
+}

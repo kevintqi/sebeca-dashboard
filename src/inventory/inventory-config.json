@@ -6,17 +6,20 @@
              {"name": "quantity", "type": "number"},
              {"name": "price", "type": "number"},
              {"name": "image", "type": "string"},
-             {"name": "category", "type": "string"},
+             {"name": "categoryId", "type": "string"},
              {"name": "desc", "type": "string"}
     ]
   },
   "addDialogTitle": "Add Inventory",
+  "removeDialog": {
+    "displayAttribute": "name"
+  },
   "uploadFile": true,
   "cloud": {
-     "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory/Chair",
+     "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
      "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
-     "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory/Chair",
+     "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
      "responseObject": "items",
-     "deleteAttribute": "itemId" 
+     "deleteAttributes": ["itemId", "categoryId"]
   }
 }

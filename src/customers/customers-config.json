@@ -8,12 +8,15 @@
     ]
   },
   "addDialogTitle": "Add Customer",
-  "uploadFile": true,
+  "removeDialog": {
+    "displayAttribute": "name"
+  },
+  "uploadFile": false,
   "cloud": {
      "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
      "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
      "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/customer",
      "responseObject": "customers",
-      "deleteAttribute": "email" 
+      "deleteAttributes": ["email"]
   }
 }
