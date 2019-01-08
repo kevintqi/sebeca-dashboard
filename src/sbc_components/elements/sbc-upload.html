@@ -4,20 +4,26 @@
 <dom-module id="sbc-upload">
   <template>
     <style>
-      :host {
-        display: block;
-      }
     </style>
 
     <vaadin-upload id="manualUpload"
-                   no-auto
-                   target="https://example.com/images/upload"
-                   accept="image/*"
-                   maxFiles="1">
+                   max-files="1"
+                   method="PUT"
+                   target={{target}}
+                   accept="image/jpeg"
+                   files="{{files}}">
+      <div slot="file-list">
+        <h3>Upload the image (JPEG only)</h3>
+        <template is="dom-repeat"
+                  items="{{files}}"
+                  as="file">
+          <h3>Files:
+            <strong>[[file.name]]</strong>
+            [[file.status]]
+          </h3>
+        </template>
+      </div>
     </vaadin-upload>
-
-    <br>
-    <button id="uploadButton">Start Upload(s)</button>
 
   </template>
   <script>
@@ -26,33 +32,21 @@
         return 'sbc-upload';
       }
 
-      static get properties() {
-        return {
-          configFile_: {
-            type: String,
-            value: "./src/customers/customers-config.json"
-          },
-        };
-      }
-
       ready() {
         super.ready();
 
-        document.addEventListener('WebComponentsReady', function () {
-          var upload = document.querySelector('vaadin-upload#manualUpload');
-          var uploadButton = document.getElementById('uploadButton');
-
-          uploadButton.addEventListener('click', function () {
-            upload.uploadFiles();
-          });
-
-          // Change upload button text
-          upload.set('i18n.addFiles', {
-            one: 'Add File',
-            many: 'Add Files'
-          });
+        var upload = this.$['manualUpload'];
+        upload.addEventListener('upload-request', function (event) {
+          event.preventDefault();
+          var file = event.detail.file;
+          file.uploadTarget = this.target;
+          event.detail.xhr.send(file);
         });
+      }
 
+      reset() {
+        var upload = this.$['manualUpload'];
+        upload.files = [];
       }
     }
 

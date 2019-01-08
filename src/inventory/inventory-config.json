@@ -19,6 +19,7 @@
      "urlGet": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
      "urlPost": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
      "urlDel": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/inventory",
+     "urlStorage": "https://cq7lc4v7id.execute-api.us-west-2.amazonaws.com/dev/assets",
      "responseObject": "items",
      "deleteAttributes": ["itemId", "categoryId"]
   }

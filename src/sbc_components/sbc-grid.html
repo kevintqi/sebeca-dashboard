@@ -9,7 +9,8 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
 
 
-<link rel="import" href="./elements/row-detail-form.html">
+<link rel="import"
+      href="./elements/row-detail-form.html">
 
 <dom-module id="sbc-grid">
   <template>
@@ -43,18 +44,19 @@
     <iron-ajax id='cloudOperation'
                handle-as="json"
                on-response="_handleCloudOperation"
-               on-error="_handleCloudError">
-    </iron-ajax>
+               on-error="_handleCloudError"> </iron-ajax>
     <iron-ajax id='cloudItems'
                handle-as="json"
                on-response="_handleCloudItems"
-               on-error="_handleCloudError">
-    </iron-ajax>
+               on-error="_handleCloudError"> </iron-ajax>
     <iron-ajax id='configInfo'
                url="{{configfilegv}}"
                on-response="_handleConfig"
-               last-response="{{config_}}">
-    </iron-ajax>
+               last-response="{{config_}}"> </iron-ajax>
+    <iron-ajax id='cloudStorage'
+               handle-as="json"
+               last-response="{{cloudStorage_}}"
+               on-error="_handleCloudError"> </iron-ajax>
 
     <h1>[[config_.pageTitle]]</h1>
 
@@ -124,7 +126,9 @@
       <h2 class="d-header">[[config_.addDialogTitle]]</h2>
       <paper-dialog-scrollable>
         <div class="add-dialog">
+          <!-- TODO lechDev: document in the readme file the arguments to the component -->
           <row-detail-form upload={{config_.uploadFile}}
+                           target={{cloudStorage_.uploadUrl}}
                            rows={{config_.columns.names}}></row-detail-form>
         </div>
       </paper-dialog-scrollable>
@@ -160,6 +164,11 @@
             type: Object,
             reflectToAttribute: true,
             notify: true,
+          },
+          cloudStorage_: {
+            type: Object,
+            notify: true,
+            value: {}
           }
         };
       }
@@ -201,6 +210,8 @@
             that._normalizeType(data);
             console.info("addDialog data:", data);
             that._saveInCloud(data);
+
+            console.log("cloudStrorage_", that.cloudStorage_);
           }
           component.resetFields();
         });
@@ -221,6 +232,9 @@
               if (result[0].type === "number") {
                 data[attribute] = parseInt(data[attribute]);
               }
+            }
+            if ((this.config_.uploadFile) && (attribute === 'image')) {
+              data[attribute] = this.cloudStorage_.dataUrl;
             }
           }
         }
@@ -260,7 +274,7 @@
         const req = e.detail.request;
         const err = e.detail.error;
         console.log('error', err, req.status, req.statusText);
-        alert("Error", req, err);
+        alert("Cloud request failed \n" +  err.message + "\n" + req.url);
       }
 
       _saveInCloud(data) {
@@ -278,13 +292,26 @@
         ajax.generateRequest();
       }
 
+      _getCloudStorage() {
+        let ajax = this.$.cloudStorage;
+        ajax.url = this.config_.cloud.urlStorage;
+        ajax.method = 'post';
+        ajax.body = JSON.stringify({
+          "fileName": "image-" + "UserPoolIdVal-" + new Date().getTime() + ".jpeg",
+          "contentType":"image/jpeg"
+        });
+        ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+         ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.generateRequest();
+      }
+
       _removeIncloud(item) {
         var ajax = this.$.cloudOperation;
         ajax.method = 'delete';
         let delAttrs = this.config_.cloud.deleteAttributes;
         let body = {};
         delAttrs.forEach(function (attr) {
-           body[attr] = item[attr];
+          body[attr] = item[attr];
         }, this);
         ajax.body = JSON.stringify(body);
         ajax.url = this.config_.cloud.urlDel;
@@ -295,6 +322,9 @@
 
       _addRow() {
         var addDialog = this.$['add-dialog'];
+        if (this.config_.uploadFile) {
+          this._getCloudStorage();
+        }
         addDialog.open();
       }
 

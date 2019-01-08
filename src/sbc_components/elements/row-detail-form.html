@@ -18,7 +18,7 @@
 				width: 100%;
 			}
 		</style>
-		
+
 		<iron-form id="allData">
 			<form is="iron-form" class="results-data">
 
@@ -28,7 +28,7 @@
 
   			<dom-if if="[[upload]]">
 					<template>
-   					<sbc-upload id="uploadFile"></sbc-upload>
+   					<sbc-upload id="uploadFile" target={{target}}></sbc-upload>
 					</template>
 				</dom-if>
 
@@ -66,7 +66,7 @@
 			_packageData(inputs) {
 				let data = {};
 				for (var i = 0, len = inputs.length; i < len; i++) {
-					let input = inputs[i]; 
+					let input = inputs[i];
           data[input.name] = input.value;
 				}
         return data;
@@ -78,9 +78,11 @@
 				for (let i = 0; i < inputs.length; i++) {
           inputs[i].value = "";
         }
-        // let upload = this.shadowRoot.querySelector("#uploadFile");
-				// upload.set('files', []);
-				// upload.files = [];
+
+        if (this.upload) {
+          let uploadFile = this.shadowRoot.querySelector("#uploadFile");
+				  uploadFile.reset();
+				}
 			}
 		}
 
