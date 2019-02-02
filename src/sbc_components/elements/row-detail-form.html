@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
 
 
 <link rel="import" href="./sbc-upload.html">
@@ -13,6 +14,7 @@
 				margin: 0 10px 20px 10px;
 				font-size: 12px;
 			}
+
 			paper-input {
 				/* width: 350px; */
 				width: 100%;
@@ -20,15 +22,31 @@
 		</style>
 
 		<iron-form id="allData">
-			<form is="iron-form" class="results-data">
+			<form is="iron-form"
+			      class="results-data">
 
-				<template is="dom-repeat" items="{{rows}}">
-					<paper-input label=[[item.name]] name=[[item.name]] value="{{_getItem(detail_data, item.name)}}"></paper-input>
+				<template is="dom-repeat"
+				          items="{{rows}}">
+					<dom-if if="[[_show(item, detail_data)]]">
+						<template>
+							<paper-input label=[[item.name]]
+							             name=[[item.name]]
+							             value="{{_getItem(detail_data, item.name)}}"></paper-input>
+						</template>
+					</dom-if>
+
+					<dom-if if="[[_isDropDown(item)]]">
+						<template>
+							<vaadin-combo-box id="comboBox" label="[[item.display]]"
+							                  items="[[_getDrownDownFields(item, uiCustomData)]]"></vaadin-combo-box>
+						</template>
+					</dom-if>
 				</template>
 
-  			<dom-if if="[[upload]]">
+				<dom-if if="[[upload]]">
 					<template>
-   					<sbc-upload id="uploadFile" target={{target}}></sbc-upload>
+						<sbc-upload id="uploadFile"
+						            target={{target}}></sbc-upload>
 					</template>
 				</dom-if>
 
@@ -43,45 +61,108 @@
 			}
 			static get properties() {
 				return {
-					// This shouldn't be neccessary, but the Analyzer isn't picking up
-					// Polymer.Element#rootPath
-					rootPath: String,
+					uiCustomData: {
+						type: Object,
+						reflectToAttribute: true,
+						notify: true,
+						value: {}
+					}
 				};
+			}
+
+      // =======================================================================
+      // =======================================================================
+			_getDrownDownFields(item, uiCustomData) {
+				if ((!item) || (!uiCustomData) ||
+				    (!uiCustomData[item.uiCustom.attribute])) {
+					return;
+				}
+				const fields = [];
+				let dataArray = uiCustomData[item.uiCustom.attribute];
+				for (let i = 0; i < dataArray.length; ++i) {
+					// TODO: lechDev need to rename the category data from cloud
+					// to something more generic
+					fields.push({
+						"label": dataArray[i].category,
+						"value": {"value" : dataArray[i].categoryId, "name": "categoryId"}
+					});
+				}
+				console.log("dropdown fields", fields);
+				return fields;
+			}
+
+      // =======================================================================
+      // =======================================================================
+			_show(item, data) {
+				if (data) {
+					return true;
+				} else if ((item.skipAdd) || (item.uiCustom !== undefined)) {
+					return false;
+				}
+				return true;
+			}
+
+			_isDropDown(item) {
+				if ((item) && (item.uiCustom) &&
+					(item.uiCustom.type === "dropdown") &&
+					(!this.detail_data)) {
+					return true;
+				}
+				return false;
 			}
 
 			_getItem(data, item) {
 				if ((data) && (item)) {
-				  return data[item];
+					return data[item];
 				}
 				return "";
 			}
 
+      // =======================================================================
+      // =======================================================================
 			getAllData() {
-        var form = this.$.allData;
-        var inputs = form.querySelectorAll('paper-input');
+				var form = this.$.allData;
+				var inputs = form.querySelectorAll('paper-input');
 				var data = this._packageData(inputs);
-        return data;
-      }
+				return data;
+			}
 
+      // =======================================================================
+      // =======================================================================
 			_packageData(inputs) {
 				let data = {};
 				for (var i = 0, len = inputs.length; i < len; i++) {
 					let input = inputs[i];
-          data[input.name] = input.value;
+					data[input.name] = input.value;
 				}
-        return data;
+				if (this.upload) {
+					data.image = undefined;
+				}
+
+				if (!this._isEmptyObject(this.uiCustomData)) {
+					let comboBox = this.shadowRoot.querySelector("#comboBox");
+					data[comboBox.selectedItem.value.name] = comboBox.selectedItem.value.value;
+				}
+				return data;
+			}
+
+      // =======================================================================
+			// =======================================================================
+			_isEmptyObject(obj) {
+				// Object.keys();
+				return Object.getOwnPropertyNames(obj).length === 0;
 			}
 
 			resetFields() {
-        let form = this.$.allData;
+				let form = this.$.allData;
 				let inputs = form.querySelectorAll('paper-input');
 				for (let i = 0; i < inputs.length; i++) {
-          inputs[i].value = "";
-        }
+					inputs[i].value = "";
+				}
 
-        if (this.upload) {
-          let uploadFile = this.shadowRoot.querySelector("#uploadFile");
-				  uploadFile.reset();
+				if (this.upload) {
+					let uploadFile = this.shadowRoot.querySelector("#uploadFile");
+					uploadFile.reset();
 				}
 			}
 		}

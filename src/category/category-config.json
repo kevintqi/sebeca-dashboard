@@ -1,9 +1,9 @@
 {
   "pageTitle": "Category Page",
-  "columns": {
+  "items": {
     "names": [
              {"name": "category", "type": "string"},
-             {"name": "categoryId", "type": "string"}
+             {"name": "categoryId", "type": "string", "skipAdd": true}
     ]
   },
   "addDialogTitle": "Add Category",

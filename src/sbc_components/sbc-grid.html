@@ -9,8 +9,7 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
 
 
-<link rel="import"
-      href="./elements/row-detail-form.html">
+<link rel="import" href="./elements/row-detail-form.html">
 
 <dom-module id="sbc-grid">
   <template>
@@ -57,6 +56,8 @@
                handle-as="json"
                last-response="{{cloudStorage_}}"
                on-error="_handleCloudError"> </iron-ajax>
+    <iron-ajax id='cloud'
+               on-error="_handleCloudError"> </iron-ajax>
 
     <h1>[[config_.pageTitle]]</h1>
 
@@ -77,8 +78,8 @@
 
       <template class="row-details">
         <div class="details">
-          <row-detail-form rows={{config_.columns.names}}
-                           detail_data="{{item}}"></row-detail-form>
+          <row-detail-form rows={{config_.items.names}}
+                           detail_data={{item}}></row-detail-form>
         </div>
       </template>
 
@@ -98,11 +99,17 @@
       </vaadin-grid-column>
 
       <template is="dom-repeat"
-                items="{{config_.columns.names}}"
+                items="{{config_.items.names}}"
                 as="column">
         <vaadin-grid-column>
-          <template class="header">[[column.name]]</template>
-          <template class="cell">[[_getItem(item, column.name)]]</template>
+          <template is="dom-if" if="{{!column.uiCustom}}">
+            <template class="header">[[column.name]]</template>
+            <template class="cell">[[_getItem(item, column.name)]]</template>
+          </template>
+          <template is="dom-if" if="{{column.uiCustom}}">
+            <template class="header">[[column.display]]</template>
+            <template class="cell">[[_getArrayItem(item, column.uiCustom.attribute, column.name, column.display)]]</template>
+          </template>
         </vaadin-grid-column>
       </template>
 
@@ -129,7 +136,8 @@
           <!-- TODO lechDev: document in the readme file the arguments to the component -->
           <row-detail-form upload={{config_.uploadFile}}
                            target={{cloudStorage_.uploadUrl}}
-                           rows={{config_.columns.names}}></row-detail-form>
+                           rows={{config_.items.names}}
+                           ui-custom-data={{preFetchData_}}></row-detail-form>
         </div>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -152,6 +160,13 @@
         return {
           config_: {
             type: Object,
+            reflectToAttribute: true,
+            notify: true,
+            value: {}
+          },
+          preFetchData_: {
+            type: Object,
+            reflectToAttribute: true,
             notify: true,
             value: {}
           },
@@ -226,11 +241,11 @@
       _normalizeType(data) {
         if (data) {
           for (var attribute in data) {
-            let result = this.config_.columns.names
+            let result = this.config_.items.names
               .filter(item => item.name == attribute);
             if ((result) && (result.length > 0)) {
               if (result[0].type === "number") {
-                data[attribute] = parseInt(data[attribute]);
+                data[attribute] = parseFloat(data[attribute]);
               }
             }
             if ((this.config_.uploadFile) && (attribute === 'image')) {
@@ -246,6 +261,19 @@
         }
         return "";
       }
+
+      _getArrayItem(compareObject, attribute, searchName, returnedName) {
+        if ((this.preFetchData_) && (this.preFetchData_[attribute]) && (compareObject)) {
+          let item = this.preFetchData_[attribute].find(x => x[searchName] === this._getItem(compareObject, searchName));
+          if (item) {
+            return item[returnedName];
+          } else {
+            return "not found";
+          }
+        }
+        return "";
+      }
+
 
       _getCloudItems() {
         var ajax = this.$.cloudItems;
@@ -277,6 +305,31 @@
         alert("Cloud request failed \n" +  err.message + "\n" + req.url);
       }
 
+      _preFetch() {
+        if (this.config_.preFetch) {
+          var that = this;
+          let ajax = this.$.cloud;
+          ajax.handleAs = "json";
+          ajax.url = this.config_.preFetch[0].url;
+          ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+          ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        let request = ajax.generateRequest();
+        request.completes.then(function (req) {
+          that.preFetchData_[that.config_.preFetch[0].attribute] =
+               req.response[that.config_.preFetch[0].responseObject];
+          const tmp = Object.assign({}, that.preFetchData_);
+			    that.set('preFetchData_', tmp);
+
+          that._getCloudItems();
+          console.log("preFetchData_", that.preFetchData_);
+        }, function (rejected) {
+          let req = rejected.request;
+          let error = rejected.error;
+          console.error(req, error);
+        });
+        }
+      }
+
       _saveInCloud(data) {
         var ajax = this.$.cloudOperation;
         ajax.method = 'post';
@@ -288,8 +341,20 @@
       }
 
       _getConfig() {
-        var ajax = this.$.configInfo;
-        ajax.generateRequest();
+        var that = this;
+        let ajax = this.$.configInfo;
+        let request = ajax.generateRequest();
+        request.completes.then(function (req) {
+          if ((that.config_.preFetch) && (that.config_.preFetch[0])) {
+            that._preFetch();
+          } else {
+            that._getCloudItems();
+          }
+        }, function (rejected) {
+          let req = rejected.request;
+          let error = rejected.error;
+          console.error(req, error);
+        });
       }
 
       _getCloudStorage() {
@@ -358,7 +423,6 @@
 
       _handleConfig(e, data) {
         console.log("_handleConfig data:", data.xhr.response);
-        this._getCloudItems();
       }
     }
 

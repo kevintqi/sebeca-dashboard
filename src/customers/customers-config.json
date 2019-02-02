@@ -1,6 +1,6 @@
 {
   "pageTitle": "Customers Page",
-  "columns": {
+  "items": {
     "names": [
              {"name": "name", "type": "string"},
              {"name": "phoneNumber", "type": "string"},
