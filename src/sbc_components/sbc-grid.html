@@ -306,6 +306,7 @@
       }
 
       _preFetch() {
+        this.preFetchData_ = {};
         if (this.config_.preFetch) {
           var that = this;
           let ajax = this.$.cloud;
