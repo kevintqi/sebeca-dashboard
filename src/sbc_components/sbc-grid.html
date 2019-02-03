@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
@@ -17,6 +18,11 @@
       :host {
         display: block;
         padding: 10px 20px;
+      }
+
+      .image-small {
+        width: 50px;
+        height: 50px;
       }
 
       .details {
@@ -104,7 +110,12 @@
         <vaadin-grid-column>
           <template is="dom-if" if="{{!column.uiCustom}}">
             <template class="header">[[column.name]]</template>
-            <template class="cell">[[_getItem(item, column.name)]]</template>
+            <template is="dom-if" if="{{!_isEqualTo(column.name,'image')}}">
+              <template class="cell">[[_getItem(item, column.name)]]</template>
+            </template>
+            <template is="dom-if" if="{{_isEqualTo(column.name,'image')}}">
+              <template class="cell"><iron-image class="image-small" sizing="contain" src="{{_getItem(item, column.name)}}"></iron-image></template>
+            </template>
           </template>
           <template is="dom-if" if="{{column.uiCustom}}">
             <template class="header">[[column.display]]</template>
@@ -236,6 +247,11 @@
         if (e.detail.value) {
           this.$.material.detailsOpenedItems = [e.detail.value];
         }
+      }
+
+
+      _isEqualTo(string1, string2) {
+         return string1 == string2;
       }
 
       _normalizeType(data) {
