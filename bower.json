@@ -32,7 +32,10 @@
     "paper-dialog": "PolymerElements/paper-dialog#^2.0.1",
     "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.0.1",
     "vaadin-upload": "vaadin/vaadin-upload#^4.2.1",
-    "vaadin-combo-box": "vaadin/vaadin-combo-box#^4.2.2"
+    "vaadin-combo-box": "vaadin/vaadin-combo-box#^4.2.2",
+    "paper-password-input": "^2.3.0",
+    "aws-sdk": "aws-sdk-js#^2.266.1",
+    "amazon-cognito-identity-js": "^1.31.0"
   },
   "resolutions": {
     "polymer": "^2.0.0"

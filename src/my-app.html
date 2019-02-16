@@ -16,7 +16,8 @@
 <link rel="lazy-import" href="./category-operations.html">
 <link rel="lazy-import" href="./customers-view.html">
 <link rel="lazy-import" href="./inventory-operations.html">
-<link rel="rel-import" href="./about-view.html">
+<link rel="lazy-import" href="./login-view.html">
+<link rel="lazy-import" href="./about-view.html">
 <link rel="lazy-import" href="./not-found.html">
 
 
@@ -84,6 +85,7 @@
           <a name="category-operations" href="[[rootPath]]category-operations">Category</a>
           <a name="customers-view" href="[[rootPath]]customers-view">Customers</a>
           <a name="inventory-operations" href="[[rootPath]]inventory-operations">Inventory</a>
+          <a name="login-view" href="[[rootPath]]login-view">Login</a>
           <a name="about-view" href="[[rootPath]]about-view">About</a>
         </iron-selector>
       </app-drawer>
@@ -96,7 +98,12 @@
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Sebeca Dashboard</div>
-            <a name="register-login" href="[[rootPath]]register-login">Log in</a>
+            <!-- <a name="register-login" href="[[rootPath]]register-login">Log in</a> -->
+            <a name="register-login" href="[[rootPath]]login-view" hidden$="[[user]]">Log in</a>
+            <div hidden$="[[!user]]">
+              <span class="greeting">Hi {{user.email}}!</span>
+              <a name="register-login" href="[[rootPath]]login-view">Log out</a>
+            </div>
           </app-toolbar>
         </app-header>
 
@@ -110,6 +117,7 @@
           <category-operations name="category-operations"></category-operations>
           <customers-view name="customers-view"></customers-view>
           <inventory-operations name="inventory-operations"></inventory-operations>
+          <login-view name="login-view" user={{user}}></login-view>
           <about-view name="about-view"></about-view>
           <not-found name="not-found"></not-found>
         </iron-pages>
@@ -127,6 +135,12 @@
 
       static get properties() {
         return {
+          user: {
+            type: Boolean,
+            reflectToAttribute: true,
+            notify: true,
+            value: null
+          },
           page: {
             type: String,
             reflectToAttribute: true,
@@ -145,7 +159,13 @@
       }
 
       _routePageChanged(page) {
-        this.page = page || 'pos-system';
+        if(this.user) {
+          this.page = page || 'login-view';
+
+        } else {
+          this.page = 'login-view'
+        }
+
         // Close a non-persistet drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {
           this.$.drawer.close();

@@ -1,0 +1,32 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="login/aws-login.html">
+
+<dom-module id="login-view">
+  <template>
+    <style>
+    </style>
+
+    <aws-login user={{user}}></aws-login>
+
+  </template>
+
+  <script>
+    class LoginView extends Polymer.Element {
+      static get is() { return 'login-view'; }
+
+      static get properties() {
+        return {
+          user: {
+            type: Boolean,
+            reflectToAttribute: true,
+            notify: true,
+            value: null
+          }
+        }
+      }
+    }
+
+    window.customElements.define(LoginView.is, LoginView);
+  </script>
+</dom-module>

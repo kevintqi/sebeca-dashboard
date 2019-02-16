@@ -3,6 +3,8 @@
   "shell": "src/my-app.html",
   "fragments": [
     "src/pos-system.html",
+    "src/inventory-operations.html",
+    "src/login-view.html",
     "src/about-view.html",
     "src/not-found.html"
   ],
