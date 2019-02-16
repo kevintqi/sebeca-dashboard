@@ -7,6 +7,7 @@
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -64,6 +65,10 @@
       }
     </style>
 
+    <iron-ajax auto
+               url="{{configFile_}}"
+               last-response="{{config_}}"> </iron-ajax>
+
     <app-location
         route="{{route}}"
         url-space-regex="^[[rootPath]]">
@@ -97,7 +102,7 @@
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-            <div main-title>Sebeca Dashboard</div>
+            <div main-title>{{config_.company}} Dashboard</div>
             <!-- <a name="register-login" href="[[rootPath]]register-login">Log in</a> -->
             <a name="register-login" href="[[rootPath]]login-view" hidden$="[[user]]">Log in</a>
             <div hidden$="[[!user]]">
@@ -145,6 +150,16 @@
             type: String,
             reflectToAttribute: true,
             observer: '_pageChanged',
+          },
+          configFile_: {
+            type: String,
+            value: "./src/configuration/main-config.json"
+          },
+          config_: {
+            type: Object,
+            reflectToAttribute: true,
+            notify: true,
+            value: {}
           },
           routeData: Object,
           subroute: Object,
