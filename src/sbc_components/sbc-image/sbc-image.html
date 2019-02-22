@@ -1,0 +1,81 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="sbc-image">
+  <template>
+    <style>
+      .image-small {
+        width: 100px;
+        height: 100px;
+      }
+
+      .fake-link {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    </style>
+
+    <span class="fake-link">
+      <iron-image on-click="_showImage"
+                  class="image-small"
+                  sizing="contain"
+                  src="{{src}}"></iron-image>
+    </span>
+
+    <paper-dialog id="image-dialog"
+                  modal
+                  on-iron-overlay-opened="patchOverlay">
+      <iron-image style="width:200px; height:200px; display: block; margin:auto;"
+                  sizing="contain"
+                  src="{{src}}"></iron-image>
+      <div class='buttons'>
+        <paper-button dialog-dismiss>Cancel</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+  <script>
+    class SbcImage extends Polymer.Element {
+      static get is() {
+        return 'sbc-image';
+      }
+      static get properties() {
+        return {
+          src: {
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+            value: {}
+          }
+        };
+      }
+
+      patchOverlay(e) {
+        if (e.target.withBackdrop) {
+          let parent = e.target.getRootNode().host;
+          while (parent !== undefined && parent !== null) {
+            if (parent && parent.parentNode === null) {
+              parent = parent.getRootNode().host ? parent.getRootNode().host : parent;
+            } else {
+              parent = parent.parentNode;
+            }
+            if (parent === document.body) {
+              parent.appendChild(e.target);
+              return;
+            }
+          }
+        }
+      }
+
+      _showImage() {
+        var dialog = this.$['image-dialog'];
+        dialog.open();
+      }
+    }
+
+    window.customElements.define(SbcImage.is, SbcImage);
+  </script>
+</dom-module>

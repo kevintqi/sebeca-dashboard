@@ -103,7 +103,6 @@
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>{{config_.company}} Dashboard</div>
-            <!-- <a name="register-login" href="[[rootPath]]register-login">Log in</a> -->
             <a name="register-login" href="[[rootPath]]login-view" hidden$="[[user]]">Log in</a>
             <div hidden$="[[!user]]">
               <span class="greeting">Hi {{user.email}}!</span>

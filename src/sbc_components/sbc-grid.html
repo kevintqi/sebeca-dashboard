@@ -11,6 +11,7 @@
 
 
 <link rel="import" href="./elements/row-detail-form.html">
+<link rel="import" href="./sbc-image/sbc-image.html">
 
 <dom-module id="sbc-grid">
   <template>
@@ -114,7 +115,7 @@
               <template class="cell">[[_getItem(item, column.name)]]</template>
             </template>
             <template is="dom-if" if="{{_isEqualTo(column.name,'image')}}">
-              <template class="cell"><iron-image class="image-small" sizing="contain" src="{{_getItem(item, column.name)}}"></iron-image></template>
+              <template><sbc-image src="{{_getItem(item, column.name)}}"></sbc-image></template>
             </template>
           </template>
           <template is="dom-if" if="{{column.uiCustom}}">
