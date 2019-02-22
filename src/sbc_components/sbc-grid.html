@@ -21,6 +21,10 @@
         padding: 10px 20px;
       }
 
+      vaadin-grid {
+        height: 75vh;
+      }
+
       .image-small {
         width: 50px;
         height: 50px;
@@ -80,8 +84,7 @@
                  active-item="{{activeItem}}"
                  on-active-item-changed="_onActiveItemChanged"
                  aria-label="multi-component"
-                 items="[[cloudItems_]]"
-                 size="200">
+                 items="[[cloudItems_]]">
 
       <template class="row-details">
         <div class="details">
@@ -447,3 +450,5 @@
     window.customElements.define(SbcGrid.is, SbcGrid);
   </script>
 </dom-module>
+
+<!-- https://cdn.vaadin.com/vaadin-grid/2.0.0-alpha3/demo/sorting-filtering.html -->
