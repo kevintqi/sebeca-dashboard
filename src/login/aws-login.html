@@ -99,8 +99,12 @@
       constructor() {
         super();
         this.user = null;
+        this.userPoolInfo = {
+          poolId: 'us-west-2_O2rXvLvi8',
+          clientId: '385ktpb44cac9bdjbquv9apqo6',
+          identityPoolId: 'us-west-2:0e36de8d-54fd-41e1-ae40-b406ba06d9c8'
+        };
       }
-
 
       static get properties() {
         return {
@@ -141,7 +145,6 @@
           window.dispatchEvent(new CustomEvent('aws-login-user-update', {
             detail: {
               'email': user.email,
-              'role': user.role,
               'userPoolId': user.userPoolId,
               'userIdToken': user.userIdToken
             }
@@ -175,51 +178,41 @@
         let userName = this.$.form.querySelector('#userName').value;
         let password = this.$.form.querySelector('#password').value;
 
-        var authenticationData = {
+        var authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails({
           Username: userName,
           Password: password,
-        };
-        var authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(
-          authenticationData);
-        var poolData = {
-          UserPoolId: 'us-west-2_uvLRuYLaz', // Your user pool id here
-          ClientId: '7jfn70bhrbchfn5flmbs96nga4' // Your client id here
-        };
-        var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
-        var userData = {
+        });
+        var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool({
+          UserPoolId: this.userPoolInfo.poolId,
+          ClientId: this.userPoolInfo.clientId
+        });
+        var cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser({
           Username: userName,
           Pool: userPool
-        };
-        var cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        });
 
         var lThis = this;
-
         cognitoUser.authenticateUser(authenticationDetails, {
           onSuccess: function (result) {
             console.log('id token + ' + result.getIdToken().getJwtToken());
-            var userPoolId = 'us-west-2_uvLRuYLaz';
+          
             var userIdToken = result.getIdToken().getJwtToken()
 
             // alert(result.getAccessToken().getJwtToken());
 
             //POTENTIAL: Region needs to be set if not already set previously elsewhere.
             AWS.config.region = 'us-west-2';
-
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-              IdentityPoolId: 'us-west-2:0b32af78-187b-4a2b-ae05-8fc4c1727f73', // your identity pool id here
-              Logins: {
-                // Change the key below according to the specific region your user pool is in.
-                'cognito-idp.us-west-2.amazonaws.com/us-west-2_uvLRuYLaz': result.getIdToken().getJwtToken()
-              }
-            });
-
+            var loginInfo = {
+              IdentityPoolId: lThis.userPoolInfo.identityPoolId,
+              Logins: {}
+            }
+            loginInfo.Logins[`cognito-idp.us-west-2.amazonaws.com/${lThis.userPoolInfo.poolId}`] = result.getIdToken().getJwtToken();
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials(loginInfo);
             // refreshes credentials using AWS.CognitoIdentity.getCredentialsForIdentity()
             AWS.config.credentials.refresh((error) => {
               if (error) {
                 console.error(error);
               } else {
-                // Instantiate aws sdk service objects now that the credentials have been updated.
-                // example: var s3 = new AWS.S3();
                 console.log('Successfully logged!');
 
                 cognitoUser.getUserAttributes(function (err, result) {
@@ -228,18 +221,13 @@
                     return;
                   }
 
-                  let role;
                   for (let i = 0; i < result.length; i++) {
                     console.log('attribute ' + result[i].getName() + ' has value ' + result[i].getValue());
-                    if (result[i].getName() === "custom:company_role") {
-                      role = result[i].getValue();
-                    }
                   }
 
                   lThis.user = {
                     'email': userName,
-                    'role': role,
-                    'userPoolId': userPoolId,
+                    'userPoolId': lThis.userPoolInfo.poolId,
                     'userIdToken': userIdToken
                   };
                 });
@@ -265,9 +253,6 @@
             delete userAttributes.phone_number_verified;
 
             userAttributes.name = prompt("Please enter your name:");
-            userAttributes.gender = prompt("Please enter your gender");
-            userAttributes.picture = prompt("Please enter the picture url");
-            userAttributes["custom:company_role"] = prompt("Please enter your role");
             let newPassword = prompt("Please enter your new password:")
             cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, this);
           }
