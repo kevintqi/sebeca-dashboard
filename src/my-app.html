@@ -118,9 +118,9 @@
             fallback-selection="not-found"
             role="main">
           <pos-system name="pos-system"></pos-system>
-          <category-operations name="category-operations"></category-operations>
-          <customers-view name="customers-view"></customers-view>
-          <inventory-operations name="inventory-operations"></inventory-operations>
+          <category-operations name="category-operations" user={{user}}></category-operations>
+          <customers-view name="customers-view" user={{user}}></customers-view>
+          <inventory-operations name="inventory-operations" user={{user}}></inventory-operations>
           <login-view name="login-view" user={{user}}></login-view>
           <about-view name="about-view"></about-view>
           <not-found name="not-found"></not-found>

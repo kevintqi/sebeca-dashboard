@@ -1,17 +1,17 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
 
 
-<link rel="import" href="./elements/row-detail-form.html">
-<link rel="import" href="./sbc-image/sbc-image.html">
+<link rel="import" href="./row-detail-form.html">
+<link rel="import" href="../sbc-image/sbc-image.html">
 
 <dom-module id="sbc-grid">
   <template>
@@ -173,6 +173,13 @@
       }
       static get properties() {
         return {
+          user: {
+            type: Object,
+            notify: true,
+            value: function () {
+              return {};
+            }
+          },
           config_: {
             type: Object,
             reflectToAttribute: true,
@@ -294,12 +301,11 @@
         return "";
       }
 
-
       _getCloudItems() {
         var ajax = this.$.cloudItems;
         ajax.url = this.config_.cloud.urlGet;
-        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
-        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.headers['authorization'] = 'Bearer ' + this.user.userIdToken;
+        ajax.headers['user-pool-id'] = this.user.userPoolId;
         ajax.generateRequest();
       }
 
@@ -332,8 +338,10 @@
           let ajax = this.$.cloud;
           ajax.handleAs = "json";
           ajax.url = this.config_.preFetch[0].url;
-          ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
-          ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+          // ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+          // ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.headers['authorization'] = 'Bearer ' + this.user.userIdToken;
+        ajax.headers['user-pool-id'] = this.user.userPoolId;
         let request = ajax.generateRequest();
         request.completes.then(function (req) {
           that.preFetchData_[that.config_.preFetch[0].attribute] =
@@ -356,8 +364,10 @@
         ajax.method = 'post';
         ajax.body = JSON.stringify(data);
         ajax.url = this.config_.cloud.urlPost;
-        ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
-        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        // ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+        // ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.headers['authorization'] = 'Bearer ' + this.user.userIdToken;
+        ajax.headers['user-pool-id'] = this.user.userPoolId;
         ajax.generateRequest();
       }
 
@@ -386,8 +396,10 @@
           "fileName": "image-" + "UserPoolIdVal-" + new Date().getTime() + ".jpeg",
           "contentType":"image/jpeg"
         });
-        ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
-         ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        // ajax.headers['authorization'] = 'Bearer ' + 'AuthorizationVal';
+        //  ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.headers['authorization'] = 'Bearer ' + this.user.userIdToken;
+        ajax.headers['user-pool-id'] = this.user.userPoolId;
         ajax.generateRequest();
       }
 
@@ -401,8 +413,10 @@
         }, this);
         ajax.body = JSON.stringify(body);
         ajax.url = this.config_.cloud.urlDel;
-        ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
-        ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        // ajax.headers['authorization'] = 'Bearer ' + 'UserPoolIdVal';
+        // ajax.headers['user-pool-id'] = 'UserPoolIdVal';
+        ajax.headers['authorization'] = 'Bearer ' + this.user.userIdToken;
+        ajax.headers['user-pool-id'] = this.user.userPoolId;
         ajax.generateRequest();
       }
 

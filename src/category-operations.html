@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 
-<link rel="import" href="./sbc_components/sbc-grid.html">
+<link rel="import" href="./sbc_components/sbc-grid/sbc-grid.html">
 
 <dom-module id="category-operations">
   <template>
@@ -12,7 +12,7 @@
       }
     </style>
 
-    <sbc-grid configfilegv="[[configFile_]]"></sbc-grid>
+    <sbc-grid configfilegv="[[configFile_]]" user={{user}}></sbc-grid>
 
   </template>
 
